@@ -82,12 +82,21 @@ public class WebLayoutController implements Initializable {
             return;
         } else if (browseField.getText().startsWith("http://") || browseField.getText().startsWith("https://")) {
             engine.load(browseField.getText());
+            //setting the connection security icon
+            if (browseField.getText().startsWith("https://")) {
+                imageSecurity.setImage(new Image("/icons/secure.png"));
+                Tooltip.install(imageSecurity, secureTooltip);
+            } else if (browseField.getText().startsWith("http://")) {
+                imageSecurity.setImage(new Image("/icons/unsecure.png"));
+                Tooltip.install(imageSecurity, unsecureTooltip);
+            }
+
             //the listener will put the new page url in the browseField
             engine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
-                        if (Worker.State.SUCCEEDED.equals(newValue)) {
-                            browseField.setText(engine.getLocation());
-                        }
-                    });
+                if (Worker.State.SUCCEEDED.equals(newValue)) {
+                    browseField.setText(engine.getLocation());
+                }
+            });
         } else if (!browseField.getText().startsWith("http://") || !browseField.getText().startsWith("https://")) {
             //engine.load("https://" + browseField.getText());
             HttpURLConnection.setFollowRedirects(true);
@@ -97,6 +106,8 @@ public class WebLayoutController implements Initializable {
                 con.connect();
                 if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     engine.load(url.toString());
+                    imageSecurity.setImage(new Image("/icons/secure.png"));
+                    Tooltip.install(imageSecurity, secureTooltip);
                     //the listener, will put the new url in browse field
                     engine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
                         if (Worker.State.SUCCEEDED.equals(newValue)) {
@@ -113,15 +124,21 @@ public class WebLayoutController implements Initializable {
                 System.out.println("webbrowser.WebLayoutController.browseBtnClicked()");
             } catch (IOException ex) {
                 ex.getMessage();
-                System.out.println("IOEXception");
-                URL securl;
+                //the protocol is not https
+                URL unsecurl;
                 try {
-                    securl = new URL("http://" + browseField.getText());
-                    HttpURLConnection secureCon = (HttpURLConnection) securl.openConnection();
+                    unsecurl = new URL("http://" + browseField.getText());
+                    HttpURLConnection secureCon = (HttpURLConnection) unsecurl.openConnection();
                     secureCon.connect();
                     if (secureCon.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                        engine.load(securl.toString());
-                        browseField.setText(securl.toString());
+                        engine.load(unsecurl.toString());
+                        imageSecurity.setImage(new Image("/icons/unsecure.png"));
+                        Tooltip.install(imageSecurity, unsecureTooltip);
+                        engine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+                            if (Worker.State.SUCCEEDED.equals(newValue)) {
+                                browseField.setText(engine.getLocation());
+                            }
+                        });
                     }
                 } catch (MalformedURLException ex1) {
                     ex.getMessage();
@@ -134,10 +151,10 @@ public class WebLayoutController implements Initializable {
         }
 
         //browseField.setText(engine.getLocation());
-        if (browseField.getText().contains("http://")) {
+        if (browseField.getText().startsWith("http://")) {
             imageSecurity.setImage(new Image("/icons/unsecure.png"));
             Tooltip.install(imageSecurity, unsecureTooltip);
-        } else if (browseField.getText().contains("https://")) {
+        } else if (browseField.getText().startsWith("https://")) {
             imageSecurity.setImage(new Image("/icons/secure.png"));
             Tooltip.install(imageSecurity, secureTooltip);
         }
