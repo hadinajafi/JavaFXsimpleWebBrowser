@@ -13,6 +13,7 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -40,7 +41,7 @@ public class WebLayoutController implements Initializable {
      */
     private boolean jsEnabled = false;
     private WebEngine engine;
-    
+
     @FXML
     private ImageView imageSecurity;
 
@@ -62,12 +63,12 @@ public class WebLayoutController implements Initializable {
             browseBtnClicked(null);
         }
     }
-    
-    public void setWebEngine(WebEngine engine){
+
+    public void setWebEngine(WebEngine engine) {
         this.engine = engine;
     }
-    
-    public WebEngine getWebEngine(){
+
+    public WebEngine getWebEngine() {
         return this.engine;
     }
 
@@ -75,13 +76,18 @@ public class WebLayoutController implements Initializable {
     void browseBtnClicked(MouseEvent event) {
         Tooltip secureTooltip = new Tooltip("Connection is secure");
         Tooltip unsecureTooltip = new Tooltip("Connection is NOT secure!");
-        
+
         engine.setJavaScriptEnabled(false);
         if (browseField.getText() == null || "".equals(browseField.getText())) {
             return;
         } else if (browseField.getText().startsWith("http://") || browseField.getText().startsWith("https://")) {
             engine.load(browseField.getText());
-            browseField.setText(engine.getLocation());
+            //the listener will put the new page url in the browseField
+            engine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+                        if (Worker.State.SUCCEEDED.equals(newValue)) {
+                            browseField.setText(engine.getLocation());
+                        }
+                    });
         } else if (!browseField.getText().startsWith("http://") || !browseField.getText().startsWith("https://")) {
             //engine.load("https://" + browseField.getText());
             HttpURLConnection.setFollowRedirects(true);
@@ -91,8 +97,13 @@ public class WebLayoutController implements Initializable {
                 con.connect();
                 if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     engine.load(url.toString());
-                    browseField.setText(url.toString());
-                    System.out.println(engine.locationProperty());
+                    //the listener, will put the new url in browse field
+                    engine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+                        if (Worker.State.SUCCEEDED.equals(newValue)) {
+                            browseField.setText(engine.getLocation());
+                        }
+                    });
+
                 } else {
                     engine.loadContent("<center>Can't find the page!</center>");
                     browseField.setText(engine.getLocation());
@@ -123,7 +134,6 @@ public class WebLayoutController implements Initializable {
         }
 
         //browseField.setText(engine.getLocation());
-
         if (browseField.getText().contains("http://")) {
             imageSecurity.setImage(new Image("/icons/unsecure.png"));
             Tooltip.install(imageSecurity, unsecureTooltip);
@@ -136,12 +146,11 @@ public class WebLayoutController implements Initializable {
 
     @FXML
     void jsBtnEnableDisable(MouseEvent event) {
-        if(engine.isJavaScriptEnabled()){
+        if (engine.isJavaScriptEnabled()) {
             engine.setJavaScriptEnabled(false);
             engine.reload();
             jsStatusBtn.setGraphic(new ImageView(new Image("/icons/jsd.png")));
-        }
-        else if(!engine.isJavaScriptEnabled()){
+        } else if (!engine.isJavaScriptEnabled()) {
             engine.setJavaScriptEnabled(true);
             jsStatusBtn.setGraphic(new ImageView(new Image("/icons/jse.png")));
             engine.reload();
