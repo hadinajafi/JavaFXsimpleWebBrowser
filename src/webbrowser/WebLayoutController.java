@@ -13,10 +13,13 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
@@ -41,42 +44,45 @@ public class WebLayoutController implements Initializable {
      */
     private boolean jsEnabled = false;
     private WebEngine engine;
-
+    
     @FXML
     private ImageView imageSecurity;
-
+    
+    @FXML
+    private ProgressBar progressbar;
+    
     @FXML
     private WebView webView;
-
+    
     @FXML
     private TextField browseField;
-
+    
     @FXML
     private Button browseBtn;
-
+    
     @FXML
     private Button jsStatusBtn;
-
+    
     @FXML
     void enterKeyTyped(KeyEvent event) {
         if (event.getCode() == KeyCode.ENTER) {
             browseBtnClicked(null);
         }
     }
-
+    
     public void setWebEngine(WebEngine engine) {
         this.engine = engine;
     }
-
+    
     public WebEngine getWebEngine() {
         return this.engine;
     }
-
+    
     @FXML
     void browseBtnClicked(MouseEvent event) {
         Tooltip secureTooltip = new Tooltip("Connection is secure");
         Tooltip unsecureTooltip = new Tooltip("Connection is NOT secure!");
-
+        
         engine.setJavaScriptEnabled(false);
         if (browseField.getText() == null || "".equals(browseField.getText())) {
             return;
@@ -92,11 +98,11 @@ public class WebLayoutController implements Initializable {
             }
 
             //the listener will put the new page url in the browseField
-            engine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
-                if (Worker.State.SUCCEEDED.equals(newValue)) {
-                    browseField.setText(engine.getLocation());
-                }
-            });
+//            engine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+//                if (Worker.State.SUCCEEDED.equals(newValue)) {
+//                    browseField.setText(engine.getLocation());
+//                }
+//            });
         } else if (!browseField.getText().startsWith("http://") || !browseField.getText().startsWith("https://")) {
             //engine.load("https://" + browseField.getText());
             HttpURLConnection.setFollowRedirects(true);
@@ -109,12 +115,12 @@ public class WebLayoutController implements Initializable {
                     imageSecurity.setImage(new Image("/icons/secure.png"));
                     Tooltip.install(imageSecurity, secureTooltip);
                     //the listener, will put the new url in browse field
-                    engine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
-                        if (Worker.State.SUCCEEDED.equals(newValue)) {
-                            browseField.setText(engine.getLocation());
-                        }
-                    });
-
+//                    engine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+//                        if (Worker.State.SUCCEEDED.equals(newValue)) {
+//                            browseField.setText(engine.getLocation());
+//                        }
+//                    });
+                    
                 } else {
                     engine.loadContent("<center>Can't find the page!</center>");
                     browseField.setText(engine.getLocation());
@@ -134,11 +140,11 @@ public class WebLayoutController implements Initializable {
                         engine.load(unsecurl.toString());
                         imageSecurity.setImage(new Image("/icons/unsecure.png"));
                         Tooltip.install(imageSecurity, unsecureTooltip);
-                        engine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
-                            if (Worker.State.SUCCEEDED.equals(newValue)) {
-                                browseField.setText(engine.getLocation());
-                            }
-                        });
+//                        engine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+//                            if (Worker.State.SUCCEEDED.equals(newValue)) {
+//                                browseField.setText(engine.getLocation());
+//                            }
+//                        });
                     }
                 } catch (MalformedURLException ex1) {
                     ex.getMessage();
@@ -146,7 +152,7 @@ public class WebLayoutController implements Initializable {
                     ex.getMessage();
                     engine.loadContent("<center>Can't find the page</center>");
                 }
-
+                
             }
         }
 
@@ -158,9 +164,9 @@ public class WebLayoutController implements Initializable {
             imageSecurity.setImage(new Image("/icons/secure.png"));
             Tooltip.install(imageSecurity, secureTooltip);
         }
-
+        
     }
-
+    
     @FXML
     void jsBtnEnableDisable(MouseEvent event) {
         if (engine.isJavaScriptEnabled()) {
@@ -173,17 +179,39 @@ public class WebLayoutController implements Initializable {
             engine.reload();
         }
     }
-
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Platform.runLater(() -> {
             browseField.requestFocus();
         });
+        progressbar.setStyle("-fx-accent: #2176CB");
         Image js = new Image("/icons/jsd.png");
         jsStatusBtn.setGraphic(new ImageView(js));
         engine = webView.getEngine();
         engine.setJavaScriptEnabled(false);
         engine.load("https://duckduckgo.org");
-    }
 
+//        engine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+//            if (Worker.State.SUCCEEDED.equals(newValue)) {
+//                browseField.setText(engine.getLocation());
+//            }
+//        });
+        engine.getLoadWorker().stateProperty().addListener((ObservableValue<? extends Worker.State> observable, Worker.State oldValue, Worker.State newValue) -> {
+            browseField.setText(engine.getLocation());
+            
+        });
+            
+        engine.getLoadWorker().progressProperty().addListener((ObservableValue<? extends Object> observable, Object oldValue, Object newValue) -> {
+            progressbar.setProgress(engine.getLoadWorker().getProgress());
+            if(progressbar.getProgress() == 1.0){
+                progressbar.setStyle("-fx-accent: #31B131"); 
+            }
+            else{
+                progressbar.setStyle("-fx-accent: #2176CB");
+            }
+        });
+        
+    }
+    
 }
