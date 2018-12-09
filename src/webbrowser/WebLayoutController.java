@@ -41,6 +41,7 @@ public class WebLayoutController implements Initializable {
     private WebEngine engine;
 
     private ArrayList<String> urlHistory = new ArrayList<>();
+    private ArrayList<ImageView> imageList;
     private int iterator = 0;
 
     @FXML
@@ -102,7 +103,13 @@ public class WebLayoutController implements Initializable {
 
     @FXML
     void stopBtnMouseClicked(MouseEvent event) {
-
+        if(webView.getEngine().getLoadWorker().isRunning()){
+            webView.getEngine().getLoadWorker().cancel();
+            stopLoadingBtn.setGraphic(imageList.get(4));
+        }
+        else{
+            webView.getEngine().reload();
+        }
     }
 
     public void setWebEngine(WebEngine engine) {
@@ -173,7 +180,7 @@ public class WebLayoutController implements Initializable {
                     secureCon.connect();
                     if (secureCon.getResponseCode() == HttpURLConnection.HTTP_OK) {
                         engine.load(unsecurl.toString());
-                        imageSecurity.setImage(new Image("/icons/unsecure.png"));
+                        imageSecurity.setImage(new Image("/icons/attention.png"));
                         Tooltip.install(imageSecurity, unsecureTooltip);
 //                        engine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
 //                            if (Worker.State.SUCCEEDED.equals(newValue)) {
@@ -193,7 +200,7 @@ public class WebLayoutController implements Initializable {
 
         //browseField.setText(engine.getLocation());
         if (browseField.getText().startsWith("http://")) {
-            imageSecurity.setImage(new Image("/icons/unsecure.png"));
+            imageSecurity.setImage(new Image("/icons/attention.png"));
             Tooltip.install(imageSecurity, unsecureTooltip);
         } else if (browseField.getText().startsWith("https://")) {
             imageSecurity.setImage(new Image("/icons/secure.png"));
@@ -239,27 +246,32 @@ public class WebLayoutController implements Initializable {
         forwardImg.setFitHeight(16);
         forwardImg.setFitWidth(16);
         
-        ImageView stopImage = new ImageView(new Image("/icons/arrowclose.png"));
+        ImageView stopImage = new ImageView(new Image("/icons/close.png"));
         stopImage.setFitHeight(16);
         stopImage.setFitWidth(16);
         
+        ImageView refreshImg = new ImageView(new Image("/icons/rotationright.png"));
+        refreshImg.setFitHeight(16);
+        refreshImg.setFitWidth(16);
+        
         ArrayList<ImageView> list = new ArrayList<>();
-        list.add(jsImg);
-        list.add(backImg);
-        list.add(forwardImg);
-        list.add(stopImage);
+        list.add(jsImg);//0
+        list.add(backImg);//1
+        list.add(forwardImg);//2
+        list.add(stopImage);//3
+        list.add(refreshImg);//4
         return list;
     }
     
     //set images to the buttons
     private void initialzeButtons(){
-        ArrayList<ImageView> imageList = initializeImages();
         jsStatusBtn.setGraphic(imageList.get(0));
         jsStatusBtn.setTooltip(new Tooltip("Enable/disable javascript"));
         btnBack.setGraphic(imageList.get(1));
         btnBack.setTooltip(new Tooltip("Go one page back"));
         forwardBtn.setGraphic(imageList.get(2));
         forwardBtn.setTooltip(new Tooltip("Go one page forward"));
+        stopLoadingBtn.setTooltip(new Tooltip("Stop reloaing/Refresh the current page"));
         
     }
 
@@ -271,6 +283,9 @@ public class WebLayoutController implements Initializable {
         
         //change progressbar color to blue
         progressbar.setStyle("-fx-accent: #2176CB");
+        
+        //initializing images in the UI
+        imageList = initializeImages();
         //set images to the buttons:
         initialzeButtons();
         //load default duckduckgo.org search engine on startup.
@@ -295,8 +310,10 @@ public class WebLayoutController implements Initializable {
                 addToHistory(engine.getLocation());
                 //when loading page completed, change progress bar color to green
                 progressbar.setStyle("-fx-accent: #31B131");
+                stopLoadingBtn.setGraphic(imageList.get(4));
             } else {
                 progressbar.setStyle("-fx-accent: #2176CB");
+                stopLoadingBtn.setGraphic(imageList.get(3));
             }
         });
 
