@@ -14,13 +14,13 @@
     </stylesheets>
    <children>
       <WebView fx:id="webView" layoutY="53.0" prefHeight="347.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="53.0" />
-      <TextField fx:id="browseField" layoutX="125.0" layoutY="2.0" onKeyPressed="#enterKeyTyped" prefHeight="25.0" prefWidth="314.0" promptText="type url here" AnchorPane.leftAnchor="125.0" AnchorPane.rightAnchor="161.0" AnchorPane.topAnchor="2.0" />
-      <Button fx:id="browseBtn" focusTraversable="false" layoutX="480.0" layoutY="2.0" mnemonicParsing="false" onMouseClicked="#browseBtnClicked" prefHeight="25.0" prefWidth="41.0" text="Go" AnchorPane.rightAnchor="79.0" AnchorPane.topAnchor="2.0" />
+      <TextField fx:id="browseField" layoutX="120.0" layoutY="2.0" onKeyPressed="#enterKeyTyped" prefHeight="25.0" prefWidth="310.0" promptText="type url here" AnchorPane.leftAnchor="125.0" AnchorPane.rightAnchor="165.0" AnchorPane.topAnchor="2.0" />
+      <Button fx:id="browseBtn" focusTraversable="false" layoutX="510.0" layoutY="2.0" mnemonicParsing="false" onMouseClicked="#browseBtnClicked" prefHeight="25.0" prefWidth="41.0" text="Go" AnchorPane.rightAnchor="49.0" AnchorPane.topAnchor="2.0" />
       <ImageView fx:id="imageSecurity" fitHeight="32.0" fitWidth="33.0" layoutX="90.0" layoutY="-2.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="90.0" AnchorPane.topAnchor="-2.0" />
       <Button fx:id="jsStatusBtn" layoutX="551.0" layoutY="2.0" mnemonicParsing="false" onMouseClicked="#jsBtnEnableDisable" prefHeight="25.0" prefWidth="41.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="2.0" />
       <ProgressBar fx:id="progressbar" layoutY="30.0" prefHeight="0.0" prefWidth="600.0" progress="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-      <Button fx:id="btnBack" layoutX="8.0" layoutY="2.0" mnemonicParsing="false" text="Back" AnchorPane.leftAnchor="8.0" AnchorPane.topAnchor="2.0" />
-      <Button fx:id="forwardBtn" layoutX="49.0" layoutY="2.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="41.0" text="Forward" AnchorPane.topAnchor="2.0" />
-      <Button fx:id="stopLoadingBtn" layoutX="439.0" layoutY="2.0" mnemonicParsing="false" text="Stop" AnchorPane.rightAnchor="120.0" AnchorPane.topAnchor="2.0" />
+      <Button fx:id="btnBack" layoutX="8.0" layoutY="2.0" mnemonicParsing="false" onMouseClicked="#backBtnMouseClicked" prefHeight="25.0" prefWidth="41.0" AnchorPane.leftAnchor="8.0" AnchorPane.topAnchor="2.0" />
+      <Button fx:id="forwardBtn" layoutX="49.0" layoutY="2.0" mnemonicParsing="false" onMouseClicked="#forwardBtnClicked" prefHeight="25.0" prefWidth="41.0" AnchorPane.topAnchor="2.0" />
+      <Button fx:id="stopLoadingBtn" layoutX="469.0" layoutY="2.0" mnemonicParsing="false" onMouseClicked="#stopBtnMouseClicked" prefHeight="25.0" prefWidth="41.0" AnchorPane.rightAnchor="90.0" AnchorPane.topAnchor="2.0" />
    </children>
 </AnchorPane>
