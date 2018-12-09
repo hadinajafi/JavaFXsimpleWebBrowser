@@ -300,7 +300,8 @@ public class WebLayoutController implements Initializable {
 //        });
         //listener for location changing of the webview. set location on browse field
         engine.getLoadWorker().stateProperty().addListener((ObservableValue<? extends Worker.State> observable, Worker.State oldValue, Worker.State newValue) -> {
-            browseField.setText(engine.getLocation());
+            if(!browseField.isFocused())
+                browseField.setText(engine.getLocation());
             
         });
         
