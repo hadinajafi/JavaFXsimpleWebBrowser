@@ -292,6 +292,7 @@ public class WebLayoutController implements Initializable {
         engine = webView.getEngine();
         engine.setJavaScriptEnabled(false);
         engine.load("https://duckduckgo.org");
+        imageSecurity.setImage(new Image("/icons/secure.png"));
 
 //        engine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
 //            if (Worker.State.SUCCEEDED.equals(newValue)) {
